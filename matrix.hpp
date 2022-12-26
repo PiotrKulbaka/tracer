@@ -14,11 +14,15 @@ public:
     using deleter_type = std::function<void(pointer_type)>;
 
 public:
+                    basic_matrix() noexcept;
+
                     basic_matrix(int32_t columns, int32_t rows) noexcept;
 
                     basic_matrix(int32_t columns, int32_t rows, pointer_type matrix_storage, int32_t bytes_per_row = 0, int32_t bytes_per_cell = 0, deleter_type deleter = nullptr) noexcept;
 
-                    basic_matrix(const basic_matrix&&) = default;
+                    // basic_matrix(const basic_matrix&) = default;
+
+                    // basic_matrix(const basic_matrix&&) = default;
 
                     ~basic_matrix() noexcept;
 
@@ -48,6 +52,17 @@ protected:
 
 
 template<class T, std::size_t Amount>
+basic_matrix<T, Amount>::basic_matrix() noexcept
+    : m_columns(0)
+    , m_rows(0)
+    , m_bytes_per_row(0)
+    , m_bytes_per_cell(0)
+    , m_storage(nullptr)
+    , m_deleter(nullptr)
+{
+}
+
+template<class T, std::size_t Amount>
 basic_matrix<T, Amount>::basic_matrix(int32_t columns, int32_t rows) noexcept
     : m_columns(columns)
     , m_rows(rows)
@@ -56,7 +71,7 @@ basic_matrix<T, Amount>::basic_matrix(int32_t columns, int32_t rows) noexcept
     m_bytes_per_row = m_columns * m_bytes_per_cell;
     m_storage = new T[m_bytes_per_row * m_rows];
     m_deleter = [](pointer_type ptr) {
-        delete[] ptr;
+        //delete[] ptr;
     };
 }
 
@@ -96,14 +111,14 @@ template<class T, std::size_t Amount>
 inline typename basic_matrix<T, Amount>::pointer_type basic_matrix<T, Amount>::get_row_ptr(int32_t row) const noexcept
 {
     const auto shift_in_bytes = m_bytes_per_row * row;
-    return static_cast<pointer_type>(static_cast<uint8_t*>(static_cast<void*>(m_storage)) + shift_in_bytes);
+    return static_cast<pointer_type>(static_cast<void*>(static_cast<uint8_t*>(static_cast<void*>(m_storage)) + shift_in_bytes));
 }
 
 template<class T, std::size_t Amount>
 inline typename basic_matrix<T, Amount>::pointer_type basic_matrix<T, Amount>::get_cell_ptr(int32_t row, int32_t column) const noexcept
 {
     const auto shift_in_bytes = m_bytes_per_row * row + m_bytes_per_cell * column;
-    return static_cast<pointer_type>(static_cast<uint8_t*>(static_cast<void*>(m_storage)) + shift_in_bytes);
+    return static_cast<pointer_type>(static_cast<void*>(static_cast<uint8_t*>(static_cast<void*>(m_storage)) + shift_in_bytes));
 }
 
 template<class T, std::size_t Amount>
